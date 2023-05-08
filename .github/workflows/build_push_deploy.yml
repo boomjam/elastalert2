@@ -15,7 +15,7 @@ on:
 
 env:
   SERVICE_NAME: boomalert
-  TAG: ${{ vars.GRPC_VERSION }}.${{ github.run_number }}
+  TAG: ${{ github.run_number }}
 
 jobs:
   build-and-push:

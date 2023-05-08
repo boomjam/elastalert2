@@ -37,6 +37,7 @@ RUN mkdir -p /opt/elastalert && \
     pip install setuptools wheel && \
     python setup.py sdist bdist_wheel
 
+RUN ls -laR /var/lib/docker/tmp
 COPY --from=builder /tmp/elastalert/dist/*.tar.gz /tmp/
 
 USER ${USERNAME}

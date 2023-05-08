@@ -13,6 +13,8 @@ ARG GID=1000
 ARG UID=1000
 ARG USERNAME=elastalert
 
+COPY --from=builder /tmp/elastalert/dist/*.tar.gz /tmp/
+
 RUN apt update && apt -y upgrade && \
     apt -y install jq curl gcc libffi-dev python3 python-pip && \
     rm -rf /var/lib/apt/lists/* && \
@@ -38,7 +40,6 @@ RUN mkdir -p /opt/elastalert && \
     python setup.py sdist bdist_wheel
 
 RUN ls -laR /var/lib/docker/tmp
-COPY --from=builder /tmp/elastalert/dist/*.tar.gz /tmp/
 
 USER ${USERNAME}
 ENV TZ "UTC"

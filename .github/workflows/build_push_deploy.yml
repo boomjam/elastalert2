@@ -1,0 +1,52 @@
+name: boombox elastalert
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment:
+        type: choice
+        description: 'deployment environment'
+        default: development
+        options: 
+        - dev
+        - us-prod-pri
+        - us-prod-alt
+        required: true
+      release:
+        description: 'release version'
+        default: 'fresh'
+        required: true
+
+env:
+  SERVICE_NAME: boomalert
+  TAG: ${{ vars.GRPC_VERSION }}.${{ github.run_number }}
+
+jobs:
+  build-and-push:
+    # create docker image and push to github container registry
+    runs-on: ubuntu-latest
+ 
+    steps:
+    - name: repo checkout
+      uses: actions/checkout@v3
+
+    - name: ghcr login
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: build and push
+      if: ${{ (github.event.inputs.release == 'fresh') || (github.event.inputs.release == '') }} 
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        build-args: |
+          GITHUB_ACCESS_TOKEN=${{ secrets.DEFAULT_TOKEN }}
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+        tags: |
+          ghcr.io/boomjam/elastalert2/${{ env.SERVICE_NAME }}:latest
+          ghcr.io/boomjam/elastalert2/${{ env.SERVICE_NAME }}:${{ env.TAG }}
+ 

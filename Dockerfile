@@ -5,11 +5,6 @@ LABEL maintainer="Jason Ertel"
 
 COPY . /tmp/elastalert
 
-RUN mkdir -p /opt/elastalert && \
-    cd /tmp/elastalert && \
-    pip install setuptools wheel && \
-    python setup.py sdist bdist_wheel
-
 FROM debian:buster
 #FROM python:3-slim-buster
 
@@ -38,6 +33,11 @@ RUN apt update && apt -y upgrade && \
     groupadd -g ${GID} ${USERNAME} && \
     useradd -u ${UID} -g ${GID} -M -b /opt -s /sbin/nologin \
         -c "ElastAlert 2 User" ${USERNAME}
+
+RUN mkdir -p /opt/elastalert && \
+    cd /tmp/elastalert && \
+    pip install setuptools wheel && \
+    python setup.py sdist bdist_wheel
 
 USER ${USERNAME}
 ENV TZ "UTC"

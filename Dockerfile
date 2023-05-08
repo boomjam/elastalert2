@@ -13,6 +13,7 @@ RUN mkdir -p /opt/elastalert && \
 FROM debian:buster
 #FROM python:3-slim-buster
 
+ARG DEBIAN_FRONTEND=noninteractive
 ARG GID=1000
 ARG UID=1000
 ARG USERNAME=elastalert

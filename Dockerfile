@@ -10,7 +10,8 @@ RUN mkdir -p /opt/elastalert && \
     pip install setuptools wheel && \
     python setup.py sdist bdist_wheel
 
-FROM python:3-slim-buster
+FROM debian:buster
+#FROM python:3-slim-buster
 
 ARG GID=1000
 ARG UID=1000

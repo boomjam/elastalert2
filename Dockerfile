@@ -21,7 +21,7 @@ ARG USERNAME=elastalert
 COPY --from=builder /tmp/elastalert/dist/*.tar.gz /tmp/
 
 RUN apt update && apt -y upgrade && \
-    apt -y install jq curl gcc libffi-dev && \
+    apt -y install jq curl gcc libffi-dev python3 pip && \
     rm -rf /var/lib/apt/lists/* && \
     pip install /tmp/*.tar.gz && \
     rm -rf /tmp/* && \

@@ -79,7 +79,7 @@ jobs:
           echo "CLUSTER_NAME=${{ secrets.ELASTALERT_US_ALT_EKS_NAME }}" >> $GITHUB_OUTPUT; \
         fi
 
-    - run: ${{ secrets.US_DEV_REGION }}
+    - run: ${{ secrets.ELASTALERT_US_DEV_REGION }}
 
     - run: ${{ steps.envprep.outputs.AWS_REGION }}
 

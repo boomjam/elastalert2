@@ -79,16 +79,14 @@ jobs:
           echo "CLUSTER_NAME=${{ secrets.ELASTALERT_US_ALT_EKS_NAME }}" >> $GITHUB_OUTPUT; \
         fi
 
+    - run: ${{ secrets.US_DEV_REGION }}
+
+    - run: ${{ steps.envprep.outputs.AWS_REGION }}
+
     - name: runner preparation
       run: |
         sudo apt update -y
         sudo apt install awscli -y
-
-    - run: echo "${{ github.ref }} ${{ env.TAG }}"
-
-    - run: ${{ secrets.US_DEV_REGION }}
-
-    - run: ${{ steps.envprep.outputs.AWS_REGION }}
 
     - name: repo checkout
       uses: actions/checkout@v3.3.0

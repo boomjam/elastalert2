@@ -43,6 +43,61 @@ jobs:
           GITHUB_RUN_NUMBER=${{ github.run_number }}
         tags: |
           ghcr.io/boomjam/elastalert2/${{ env.SERVICE_NAME }}:latest
-
-#          ghcr.io/boomjam/elastalert2/${{ env.SERVICE_NAME }}:${{ env.TAG }}
+          ghcr.io/boomjam/elastalert2/${{ env.SERVICE_NAME }}:${{ env.TAG }}
   
+  deploy-on-EKS:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: environment preparation
+      id: envprep
+      run: |
+        # default deployment is deploy to dev
+        echo "AWS_ROLE=${{ vars.EKS_DEV_ROLE }}" >> $GITHUB_OUTPUT;
+        echo "AWS_REGION=${{ vars.US_DEV_REGION }}" >> $GITHUB_OUTPUT;
+        echo "CLUSTER_NAME=${{ vars.US_DEV_EKS_NAME }}" >> $GITHUB_OUTPUT;
+
+        # production variables shared with all regions
+        if [[ ${{ startsWith(github.event.inputs.deployment, 'us-prod') }} == true ]]; then \
+          echo "AWS_ROLE=${{ vars.EKS_PROD_ROLE }}" >> $GITHUB_OUTPUT; \
+        fi
+
+        # production variables unique to primary
+        if [[ "${{ github.event.inputs.deployment }}" == "us-prod-pri" ]]; then \
+          echo "AWS_REGION=${{ vars.US_PRI_REGION }}" >> $GITHUB_OUTPUT; \
+          echo "CLUSTER_NAME=${{ vars.US_PRI_EKS_NAME }}" >> $GITHUB_OUTPUT; \
+        fi
+
+        # production variables unique to alternate
+        if [[ "${{ github.event.inputs.deployment }}" == "us-prod-alt" ]]; then \
+          echo "AWS_REGION=${{ vars.US_ALT_REGION }}" >> $GITHUB_OUTPUT; \
+          echo "CLUSTER_NAME=${{ vars.US_ALT_EKS_NAME }}" >> $GITHUB_OUTPUT; \
+        fi
+
+    - name: runner preparation
+      run: |
+        sudo apt update -y
+        sudo apt install awscli -y
+
+    - run: echo "${{ github.ref }} ${{ env.TAG }}"
+
+    - name: repo checkout
+      uses: actions/checkout@v3.3.0
+
+    - name: assume EKS role
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_KEY_GITHUB }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_GITHUB }}
+        aws-region: ${{ steps.envprep.outputs.AWS_REGION }}
+        role-duration-seconds: 1200
+        role-session-name:  ${{ github.run_number }}-role
+        role-to-assume: ${{ steps.envprep.outputs.AWS_ROLE }}
+
+    - name: kubeconfig
+      run: aws eks update-kubeconfig --name ${{ steps.envprep.outputs.CLUSTER_NAME }} --region ${{ steps.envprep.outputs.AWS_REGION }}

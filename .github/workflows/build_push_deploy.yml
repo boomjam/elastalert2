@@ -94,8 +94,8 @@ jobs:
     - name: assume EKS role
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_KEY_GITHUB }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_GITHUB }}
+        aws-access-key-id: ${{ secrets.ELASTALERT_AWS_KEY_GITHUB }}
+        aws-secret-access-key: ${{ secrets.ELASTALERT_AWS_SECRET_GITHUB }}
         aws-region: ${{ steps.envprep.outputs.AWS_REGION }}
         role-duration-seconds: 1200
         role-session-name:  ${{ github.run_number }}-role

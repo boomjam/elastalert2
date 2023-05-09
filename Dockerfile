@@ -5,10 +5,13 @@ LABEL maintainer="Jason Ertel"
 
 COPY . /tmp/elastalert
 
-FROM debian:buster
-#FROM python:3-slim-buster
+RUN mkdir -p /opt/elastalert && \
+    cd /tmp/elastalert && \
+    pip install setuptools wheel && \
+    python setup.py sdist bdist_wheel
 
-ARG DEBIAN_FRONTEND=noninteractive
+FROM python:3-slim-buster
+
 ARG GID=1000
 ARG UID=1000
 ARG USERNAME=elastalert
@@ -16,7 +19,7 @@ ARG USERNAME=elastalert
 COPY --from=builder /tmp/elastalert/dist/*.tar.gz /tmp/
 
 RUN apt update && apt -y upgrade && \
-    apt -y install jq curl gcc libffi-dev python3 python-pip && \
+    apt -y install jq curl gcc libffi-dev && \
     rm -rf /var/lib/apt/lists/* && \
     pip install /tmp/*.tar.gz && \
     rm -rf /tmp/* && \
@@ -33,13 +36,6 @@ RUN apt update && apt -y upgrade && \
     groupadd -g ${GID} ${USERNAME} && \
     useradd -u ${UID} -g ${GID} -M -b /opt -s /sbin/nologin \
         -c "ElastAlert 2 User" ${USERNAME}
-
-RUN mkdir -p /opt/elastalert && \
-    cd /tmp/elastalert && \
-    pip install setuptools wheel && \
-    python setup.py sdist bdist_wheel
-
-RUN ls -laR /var/lib/docker/tmp
 
 USER ${USERNAME}
 ENV TZ "UTC"

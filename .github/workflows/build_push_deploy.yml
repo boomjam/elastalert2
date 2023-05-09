@@ -58,25 +58,25 @@ jobs:
       id: envprep
       run: |
         # default deployment is deploy to dev
-        echo "AWS_ROLE=${{ vars.EKS_DEV_ROLE }}" >> $GITHUB_OUTPUT;
-        echo "AWS_REGION=${{ vars.US_DEV_REGION }}" >> $GITHUB_OUTPUT;
-        echo "CLUSTER_NAME=${{ vars.US_DEV_EKS_NAME }}" >> $GITHUB_OUTPUT;
+        echo "AWS_ROLE=${{ secrets.ELASTALERT_EKS_DEV_ROLE }}" >> $GITHUB_OUTPUT;
+        echo "AWS_REGION=${{ secrets.ELASTALERT_US_DEV_REGION }}" >> $GITHUB_OUTPUT;
+        echo "CLUSTER_NAME=${{ secrets.ELASTALERT_US_DEV_EKS_NAME }}" >> $GITHUB_OUTPUT;
 
         # production variables shared with all regions
         if [[ ${{ startsWith(github.event.inputs.deployment, 'us-prod') }} == true ]]; then \
-          echo "AWS_ROLE=${{ vars.EKS_PROD_ROLE }}" >> $GITHUB_OUTPUT; \
+          echo "AWS_ROLE=${{ secrets.ELASTALERT_EKS_PROD_ROLE }}" >> $GITHUB_OUTPUT; \
         fi
 
         # production variables unique to primary
         if [[ "${{ github.event.inputs.deployment }}" == "us-prod-pri" ]]; then \
-          echo "AWS_REGION=${{ vars.US_PRI_REGION }}" >> $GITHUB_OUTPUT; \
-          echo "CLUSTER_NAME=${{ vars.US_PRI_EKS_NAME }}" >> $GITHUB_OUTPUT; \
+          echo "AWS_REGION=${{ secrets.ELASTALERT_US_PRI_REGION }}" >> $GITHUB_OUTPUT; \
+          echo "CLUSTER_NAME=${{ secrets.ELASTALERT_US_PRI_EKS_NAME }}" >> $GITHUB_OUTPUT; \
         fi
 
         # production variables unique to alternate
         if [[ "${{ github.event.inputs.deployment }}" == "us-prod-alt" ]]; then \
-          echo "AWS_REGION=${{ vars.US_ALT_REGION }}" >> $GITHUB_OUTPUT; \
-          echo "CLUSTER_NAME=${{ vars.US_ALT_EKS_NAME }}" >> $GITHUB_OUTPUT; \
+          echo "AWS_REGION=${{ secrets.ELASTALERT_US_ALT_REGION }}" >> $GITHUB_OUTPUT; \
+          echo "CLUSTER_NAME=${{ secrets.ELASTALERT_US_ALT_EKS_NAME }}" >> $GITHUB_OUTPUT; \
         fi
 
     - name: runner preparation
@@ -86,7 +86,7 @@ jobs:
 
     - run: echo "${{ github.ref }} ${{ env.TAG }}"
 
-    - run: ${{ vars.US_DEV_REGION }}
+    - run: ${{ secrets.US_DEV_REGION }}
 
     - run: ${{ steps.envprep.outputs.AWS_REGION }}
 

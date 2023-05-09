@@ -86,6 +86,10 @@ jobs:
 
     - run: echo "${{ github.ref }} ${{ env.TAG }}"
 
+    - run: ${{ vars.US_DEV_REGION }}
+
+    - run: ${{ steps.envprep.outputs.AWS_REGION }}
+
     - name: repo checkout
       uses: actions/checkout@v3.3.0
 
